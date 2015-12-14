@@ -13,7 +13,7 @@ def requirements(fname):
 
 setup(
     name='mwviews',
-    version='0.0.2',
+    version='0.0.3',
     author='Dan Andreescu',
     author_email='dandreescu@wikimedia.org',
     description='Tools for parsing and querying Wikimedia Foundation' +
@@ -23,5 +23,5 @@ setup(
     download_url='https://github.com/mediawiki-utilities/python-mwviews/tarball/0.0.1',
     packages=find_packages(),
     keywords=['wikimedia', 'wikipedia', 'pageview', 'api'],
-    install_requires=['requests']
+    install_requires=['requests', 'futures']
 )
