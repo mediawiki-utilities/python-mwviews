@@ -4,7 +4,7 @@ This project is a collection of tools used to parse and query Wikimedia Foundati
 
 ## Install
 
-`pip install wmf`
+`pip install mwviews`
 
 ## pageview API
 
