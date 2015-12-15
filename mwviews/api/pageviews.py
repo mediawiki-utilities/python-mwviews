@@ -1,4 +1,5 @@
 import requests
+import traceback
 from datetime import date, datetime, timedelta
 from concurrent.futures import ThreadPoolExecutor
 from collections import defaultdict
@@ -19,7 +20,7 @@ def format_date(d):
 
 
 def timestamps_between(start, end, increment):
-    while start < end:
+    while start <= end:
         hour = 0
         if type(start) is datetime:
             hour = start.hour
@@ -99,18 +100,32 @@ class PageviewsClient:
             ])
             for a in articles
         ]
-        results = self.get_concurrent(urls)
 
         outputDays = timestamps_between(startDate, endDate, timedelta(days=1))
         output = defaultdict(dict, {
             day : {a : None for a in articles} for day in outputDays
         })
 
-        for result in results:
-            for item in result['items']:
-                output[parse_date(item['timestamp'])][item['article']] = item['views']
+        try:
+            results = self.get_concurrent(urls)
+            some_data_returned = False
+            for result in results:
+                if 'items' in result:
+                    some_data_returned = True
+                else:
+                    continue
+                for item in result['items']:
+                    output[parse_date(item['timestamp'])][item['article']] = item['views']
+            if not some_data_returned:
+                raise Exception(
+                    'The pageview API returned nothing useful at: {}'.format(urls)
+                )
 
-        return output
+            return output
+        except:
+            print('ERROR while fetching and parsing ' + str(urls))
+            traceback.print_exc()
+            raise
 
     def project_views(
             self, projects,
@@ -171,7 +186,6 @@ class PageviewsClient:
             ])
             for p in projects
         ]
-        results = self.get_concurrent(urls)
 
         if granularity == 'hourly':
             increment = timedelta(hours=1)
@@ -185,11 +199,26 @@ class PageviewsClient:
             day : {p : None for p in projects} for day in outputDays
         })
 
-        for result in results:
-            for item in result['items']:
-                output[parse_date(item['timestamp'])][item['project']] = item['views']
+        try:
+            results = self.get_concurrent(urls)
+            some_data_returned = False
+            for result in results:
+                if 'items' in result:
+                    some_data_returned = True
+                else:
+                    continue
+                for item in result['items']:
+                    output[parse_date(item['timestamp'])][item['project']] = item['views']
 
-        return output
+            if not some_data_returned:
+                raise Exception(
+                    'The pageview API returned nothing useful at: {}'.format(urls)
+                )
+            return output
+        except:
+            print('ERROR while fetching and parsing ' + str(urls))
+            traceback.print_exc()
+            raise
 
     def top_articles(
             self, project, access='all-access',
@@ -231,13 +260,22 @@ class PageviewsClient:
         day = str(day or yesterday.day).rjust(2, '0')
 
         url = '/'.join([endpoints['top'], project, access, year, month, day])
-        result = requests.get(url).json()
 
-        if 'items' in result and len(result['items']) == 1:
-            r = result['items'][0]['articles']
-            r.sort(key=lambda x: x['rank'])
-            return r[0:(limit)]
-        return []
+        try:
+            result = requests.get(url).json()
+
+            if 'items' in result and len(result['items']) == 1:
+                r = result['items'][0]['articles']
+                r.sort(key=lambda x: x['rank'])
+                return r[0:(limit)]
+        except:
+            print('ERROR while fetching or parsing ' + url)
+            traceback.print_exc()
+            raise
+
+        raise Exception(
+            'The pageview API returned nothing useful at: {}'.format(url)
+        )
 
     def get_concurrent(self, urls):
         with ThreadPoolExecutor(self.parallelism) as executor:
