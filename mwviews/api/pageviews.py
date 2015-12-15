@@ -20,11 +20,12 @@ def format_date(d):
 
 
 def timestamps_between(start, end, increment):
+    # convert both start and end to datetime just in case either are dates
+    start = datetime(start.year, start.month, start.day, getattr(start, 'hour', 0))
+    end = datetime(end.year, end.month, end.day, getattr(end, 'hour', 0))
+
     while start <= end:
-        hour = 0
-        if type(start) is datetime:
-            hour = start.hour
-        yield datetime(start.year, start.month, start.day, hour)
+        yield start
         start += increment
 
 
