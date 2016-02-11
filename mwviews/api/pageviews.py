@@ -1,5 +1,6 @@
 import requests
 import traceback
+from requests.utils import quote
 from datetime import date, datetime, timedelta
 from concurrent.futures import ThreadPoolExecutor
 from collections import defaultdict
@@ -94,12 +95,15 @@ class PageviewsClient:
         if type(startDate) is not date:
             startDate = parse_date(start)
 
+        articles = [a.replace(' ', '_') for a in articles]
+        articlesSafe = [quote(a) for a in articles]
+
         urls = [
             '/'.join([
                 endpoints['article'], project, access, agent, a, granularity,
                 format_date(startDate), format_date(endDate),
             ])
-            for a in articles
+            for a in articlesSafe
         ]
 
         outputDays = timestamps_between(startDate, endDate, timedelta(days=1))
