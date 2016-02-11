@@ -96,7 +96,7 @@ class PageviewsClient:
             startDate = parse_date(start)
 
         articles = [a.replace(' ', '_') for a in articles]
-        articlesSafe = [quote(a) for a in articles]
+        articlesSafe = [quote(a, safe='') for a in articles]
 
         urls = [
             '/'.join([
