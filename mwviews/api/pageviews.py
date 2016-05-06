@@ -44,8 +44,7 @@ class PageviewsClient:
 
     def article_views(
             self, project, articles,
-            access='all-access', agent='all-agents', granularity='daily',
-            start=None, end=None):
+            access='all-access', agent='all-agents', start=None, end=None):
         """
         Get pageview counts for one or more articles
         See `<https://wikimedia.org/api/rest_v1/metrics/pageviews/?doc\\
@@ -100,7 +99,7 @@ class PageviewsClient:
 
         urls = [
             '/'.join([
-                endpoints['article'], project, access, agent, a, granularity,
+                endpoints['article'], project, access, agent, a, 'daily',
                 format_date(startDate), format_date(endDate),
             ])
             for a in articlesSafe
