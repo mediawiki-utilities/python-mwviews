@@ -30,6 +30,10 @@ def timestamps_between(start, end, increment):
         start += increment
 
 
+def month_from_day(dt):
+    return datetime(dt.year, dt.month, 1)
+
+
 class PageviewsClient:
 
     def __init__(self, parallelism=10):
@@ -66,6 +70,9 @@ class PageviewsClient:
             start : str|date
                 can be a datetime.date object or string in YYYYMMDD format
                 default: 30 days before end date
+            granularity : str
+                can be daily or monthly.  Daily is the only supported granularity in the
+                back-end API, and monthly just pulls daily data and aggregates it
 
         :Returns:
             a nested dictionary that looks like: {
@@ -100,7 +107,9 @@ class PageviewsClient:
 
         urls = [
             '/'.join([
-                endpoints['article'], project, access, agent, a, granularity,
+                # granularity is faked on the client side, the API
+                # currently only supports daily
+                endpoints['article'], project, access, agent, a, 'daily',
                 format_date(startDate), format_date(endDate),
             ])
             for a in articlesSafe
@@ -125,6 +134,19 @@ class PageviewsClient:
                 raise Exception(
                     'The pageview API returned nothing useful at: {}'.format(urls)
                 )
+
+            if granularity == 'monthly':
+                output_monthly = {}
+                for day, views_per_article in output.items():
+                    month = month_from_day(day)
+                    if month not in output_monthly:
+                        output_monthly[month] = {a : None for a in articles}
+                    for article, views in views_per_article.items():
+                        if views:
+                            updated_views = (output_monthly[month][article] or 0) + views
+                            output_monthly[month][article] = updated_views
+
+                output = output_monthly
 
             return output
         except:
