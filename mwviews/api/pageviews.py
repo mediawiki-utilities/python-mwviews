@@ -59,7 +59,7 @@ class PageviewsClient:
         :Parameters:
             project : str
                 a wikimedia project such as en.wikipedia or commons.wikimedia
-            articles : list(str)
+            articles : list(str) or a simple str if asking for a single article
             access : str
                 access method (desktop, mobile-web, mobile-app, or by default, all-access)
             agent : str
@@ -101,6 +101,10 @@ class PageviewsClient:
         startDate = start or endDate - timedelta(30)
         if type(startDate) is not date:
             startDate = parse_date(start)
+
+        # If the user passes in a string as "articles", convert to a list
+        if type(articles) is str:
+            articles = [articles]
 
         articles = [a.replace(' ', '_') for a in articles]
         articlesSafe = [quote(a, safe='') for a in articles]
