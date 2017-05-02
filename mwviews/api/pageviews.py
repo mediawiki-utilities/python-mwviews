@@ -36,14 +36,21 @@ def month_from_day(dt):
 
 class PageviewsClient:
 
-    def __init__(self, parallelism=10):
+    def __init__(self, user_agent, parallelism=10):
         """
         Create a PageviewsClient
 
         :Parameters:
+            user_agent : User-Agent string to use for HTTP requests. Should be
+                         set to something that allows you to be contacted if
+                         need be, ref:
+                         https://www.mediawiki.org/wiki/REST_API
+
             parallelism : The number of parallel threads to use when making
                           multiple requests to the API at the same time
         """
+
+        self.headers = {"User-Agent": user_agent}
         self.parallelism = parallelism
 
     def article_views(
@@ -293,7 +300,7 @@ class PageviewsClient:
         url = '/'.join([endpoints['top'], project, access, year, month, day])
 
         try:
-            result = requests.get(url).json()
+            result = requests.get(url, headers=self.headers).json()
 
             if 'items' in result and len(result['items']) == 1:
                 r = result['items'][0]['articles']
@@ -310,5 +317,5 @@ class PageviewsClient:
 
     def get_concurrent(self, urls):
         with ThreadPoolExecutor(self.parallelism) as executor:
-            f = lambda url: requests.get(url).json()
+            f = lambda url: requests.get(url, headers=self.headers).json()
             return list(executor.map(f, urls))
