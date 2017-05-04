@@ -28,5 +28,5 @@ setup(
         ],
     },
     keywords=['wikimedia', 'wikipedia', 'pageview', 'api'],
-    install_requires=['requests', 'mwcli', 'mwapi']
+    install_requires=['requests', 'futures;python_version<"3.0"', 'mwcli', 'mwapi']
 )
