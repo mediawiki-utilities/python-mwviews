@@ -5,6 +5,8 @@ __pycache__/
 # Secret data
 config.py
 
+# Datasets
+datasets/
 
 # Temporary text editor files
 *~
