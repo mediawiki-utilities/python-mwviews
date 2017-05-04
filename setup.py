@@ -22,6 +22,11 @@ setup(
     url='https://github.com/mediawiki-utilities/python-mwviews',
     download_url='https://github.com/mediawiki-utilities/python-mwviews/tarball/0.0.9',
     packages=find_packages(),
+    entry_points={
+        'console_scripts': [
+            'mwviews = mwviews.mwviews:main',
+        ],
+    },
     keywords=['wikimedia', 'wikipedia', 'pageview', 'api'],
-    install_requires=['requests', 'futures']
+    install_requires=['requests', 'mwcli', 'mwapi']
 )
