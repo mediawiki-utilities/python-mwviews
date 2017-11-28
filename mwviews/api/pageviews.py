@@ -35,7 +35,6 @@ def month_from_day(dt):
 
 
 class PageviewsClient:
-
     def __init__(self, user_agent, parallelism=10):
         """
         Create a PageviewsClient
@@ -78,8 +77,8 @@ class PageviewsClient:
                 can be a datetime.date object or string in YYYYMMDD format
                 default: 30 days before end date
             granularity : str
-                can be daily or monthly.  Daily is the only supported granularity in the
-                back-end API, and monthly just pulls daily data and aggregates it
+                can be daily or monthly
+                default: daily
 
         :Returns:
             a nested dictionary that looks like: {
@@ -118,17 +117,21 @@ class PageviewsClient:
 
         urls = [
             '/'.join([
-                # granularity is faked on the client side, the API
-                # currently only supports daily
-                endpoints['article'], project, access, agent, a, 'daily',
+                endpoints['article'], project, access, agent, a, granularity,
                 format_date(startDate), format_date(endDate),
             ])
             for a in articlesSafe
         ]
 
         outputDays = timestamps_between(startDate, endDate, timedelta(days=1))
+        if granularity == 'monthly':
+            outputMonths = set()
+            for day in outputDays:
+                month = month_from_day(day)
+                outputMonths.add(month)
+                outputDays = list(outputMonths)
         output = defaultdict(dict, {
-            day : {a : None for a in articles} for day in outputDays
+            day: {a: None for a in articles} for day in outputDays
         })
 
         try:
@@ -145,19 +148,6 @@ class PageviewsClient:
                 raise Exception(
                     'The pageview API returned nothing useful at: {}'.format(urls)
                 )
-
-            if granularity == 'monthly':
-                output_monthly = {}
-                for day, views_per_article in output.items():
-                    month = month_from_day(day)
-                    if month not in output_monthly:
-                        output_monthly[month] = {a : None for a in articles}
-                    for article, views in views_per_article.items():
-                        if views:
-                            updated_views = (output_monthly[month][article] or 0) + views
-                            output_monthly[month][article] = updated_views
-
-                output = output_monthly
 
             return output
         except:
@@ -234,7 +224,7 @@ class PageviewsClient:
 
         outputDays = timestamps_between(startDate, endDate, increment)
         output = defaultdict(dict, {
-            day : {p : None for p in projects} for day in outputDays
+            day: {p: None for p in projects} for day in outputDays
         })
 
         try:
