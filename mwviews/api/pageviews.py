@@ -125,11 +125,7 @@ class PageviewsClient:
 
         outputDays = timestamps_between(startDate, endDate, timedelta(days=1))
         if granularity == 'monthly':
-            outputMonths = set()
-            for day in outputDays:
-                month = month_from_day(day)
-                outputMonths.add(month)
-                outputDays = list(outputMonths)
+            outputDays = list(set([month_from_day(day) for day in outputDays]))
         output = defaultdict(dict, {
             day: {a: None for a in articles} for day in outputDays
         })
