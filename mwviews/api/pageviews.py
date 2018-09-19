@@ -35,7 +35,7 @@ def month_from_day(dt):
 
 
 class PageviewsClient:
-    def __init__(self, user_agent, parallelism=10):
+    def __init__(self, user_agent='all-agents', parallelism=10):
         """
         Create a PageviewsClient
 
