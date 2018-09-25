@@ -11,7 +11,8 @@ This project is a collection of tools used to parse and query Wikimedia Foundati
 ```
 from mwviews.api import PageviewsClient
 
-p = PageviewsClient()
+# Sends a descriptive User-Agent header with every request
+p = PageviewsClient(user_agent="<person@organization.org> Selfie, Cat, and Dog analysis")
 
 p.article_views('en.wikipedia', ['Selfie', 'Cat', 'Dog'])
 p.project_views(['ro.wikipedia', 'de.wikipedia', 'commons.wikimedia'])
