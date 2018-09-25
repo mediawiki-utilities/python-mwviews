@@ -1,4 +1,3 @@
-import urllib.parse
 
 
 class PageViewCount:
@@ -12,8 +11,9 @@ class PageViewCount:
 
     @classmethod
     def from_line(cls, line):
+
         project, page_name, views, bytes_returned = line.strip().split(" ")
-        page_name = urllib.parse.unquote(page_name).split("#")[0]  # No anchors
+        page_name = page_name.split("#")[0]  # No anchors
 
         return cls(project, page_name, int(views), int(bytes_returned))
 
