@@ -9,6 +9,8 @@ endpoints = {
     'article': 'https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article',
     'project': 'https://wikimedia.org/api/rest_v1/metrics/pageviews/aggregate',
     'top': 'https://wikimedia.org/api/rest_v1/metrics/pageviews/top',
+    'top-by-country': 'https://wikimedia.org/api/rest_v1/metrics/pageviews/top-by-country',
+    'top-per-country': 'https://wikimedia.org/api/rest_v1/metrics/pageviews/top-per-country'
 }
 
 
@@ -248,7 +250,7 @@ class PageviewsClient:
             self, project, access='all-access',
             year=None, month=None, day=None, limit=1000):
         """
-        Get pageview counts for one or more articles
+        Get top-1000 articles with highest pageview counts in a project
         See `<https://wikimedia.org/api/rest_v1/metrics/pageviews/?doc\\
                 #!/Pageviews_data/get_metrics_pageviews_top_project\\
                 _access_year_month_day>`_
@@ -284,6 +286,120 @@ class PageviewsClient:
         day = str(day or yesterday.day).rjust(2, '0')
 
         url = '/'.join([endpoints['top'], project, access, year, month, day])
+
+        try:
+            result = requests.get(url, headers=self.headers).json()
+
+            if 'items' in result and len(result['items']) == 1:
+                r = result['items'][0]['articles']
+                r.sort(key=lambda x: x['rank'])
+                return r[0:(limit)]
+        except:
+            print('ERROR while fetching or parsing ' + url)
+            traceback.print_exc()
+            raise
+
+        raise Exception(
+            'The pageview API returned nothing useful at: {}'.format(url)
+        )
+
+    def top_articles_by_country(
+            self, project, access='all-access',
+            year=None, month=None, limit=1000):
+        """
+        Get pageviews to a project, split by country of origin for a given month
+        See `<https://wikimedia.org/api/rest_v1/metrics/pageviews/?doc\\
+                #!/Pageviews_data/get_metrics_pageviews_top_project\\
+                _access_year_month_day>`_
+
+        :Parameters:
+            project : str
+                a wikimedia project such as en.wikipedia or commons.wikimedia
+            access : str
+                access method (desktop, mobile-web, mobile-app, or by default, all-access)
+            year : int
+                default : yesterday's year
+            month : int
+                default : yesterday's month
+            limit : int
+                limit the number of articles returned to only the top <limit>
+                default : 1000
+
+        :Returns:
+            a sorted list of countries that looks like: [
+                {
+                    rank: <int>,
+                    country: <str>,
+                    views: <str>,
+                    views_ceil: <int>
+                }
+                ...
+            ]
+        """
+        yesterday = date.today() - timedelta(days=1)
+        year = str(year or yesterday.year)
+        month = str(month or yesterday.month).rjust(2, '0')
+
+        url = '/'.join([endpoints['top-by-country'], project, access, year, month])
+
+        try:
+            result = requests.get(url, headers=self.headers).json()
+
+            if 'items' in result and len(result['items']) == 1:
+                r = result['items'][0]['countries']
+                r.sort(key=lambda x: x['rank'])
+                return r[0:(limit)]
+        except:
+            print('ERROR while fetching or parsing ' + url)
+            traceback.print_exc()
+            raise
+
+        raise Exception(
+            'The pageview API returned nothing useful at: {}'.format(url)
+        )
+
+    def top_articles_per_country(
+            self, country, access='all-access',
+            year=None, month=None, day=None, limit=1000):
+        """
+        Get top-1000 articles with highest pageview counts for a country (across all projects)
+        See `<https://wikimedia.org/api/rest_v1/metrics/pageviews/?doc\\
+                #!/Pageviews_data/get_metrics_pageviews_top_project\\
+                _access_year_month_day>`_
+
+        :Parameters:
+            country : str
+                an ISO 3166-1 alpha-2 code of a country such as FR (France) or IN (India)
+            access : str
+                access method (desktop, mobile-web, mobile-app, or by default, all-access)
+            year : int
+                default : yesterday's year
+            month : int
+                default : yesterday's month
+            day : int
+                default : yesterday's day
+            limit : int
+                limit the number of articles returned to only the top <limit>
+                default : 1000
+
+        :Returns:
+            a sorted list of articles that looks like: [
+                {
+                    rank: <int>,
+                    project: <str>,
+                    article: <str>,
+                    views_ceil: <int>
+                }
+                ...
+            ]
+        """
+        yesterday = date.today() - timedelta(days=1)
+        year = str(year or yesterday.year)
+        month = str(month or yesterday.month).rjust(2, '0')
+        day = str(day or yesterday.day).rjust(2, '0')
+        country = country.upper()  # common issue is lower-case country codes
+
+        url = '/'.join([endpoints['top-per-country'], country, access, year, month, day])
 
         try:
             result = requests.get(url, headers=self.headers).json()
