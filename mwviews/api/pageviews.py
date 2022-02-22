@@ -336,9 +336,9 @@ class PageviewsClient:
                 ...
             ]
         """
-        yesterday = date.today() - timedelta(days=1)
-        year = str(year or yesterday.year)
-        month = str(month or yesterday.month).rjust(2, '0')
+        lastmonth = date.today().replace(day=1) - timedelta(days=1)
+        year = str(year or lastmonth.year)
+        month = str(month or lastmonth.month).rjust(2, '0')
 
         url = '/'.join([endpoints['top-by-country'], project, access, year, month])
 
