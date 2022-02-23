@@ -303,11 +303,11 @@ class PageviewsClient:
             'The pageview API returned nothing useful at: {}'.format(url)
         )
 
-    def top_articles_by_country(
+    def top_by_country(
             self, project, access='all-access',
             year=None, month=None, limit=1000):
         """
-        Get pageviews to a project, split by country of origin for a given month
+        Get countries that access this project, sorted from highest to lowest pageview traffic, for a given month
         See `<https://wikimedia.org/api/rest_v1/metrics/pageviews/?doc\\
                 #!/Pageviews_data/get_metrics_pageviews_top_project\\
                 _access_year_month_day>`_
@@ -358,7 +358,7 @@ class PageviewsClient:
             'The pageview API returned nothing useful at: {}'.format(url)
         )
 
-    def top_articles_per_country(
+    def top_per_country(
             self, country, access='all-access',
             year=None, month=None, day=None, limit=1000):
         """
