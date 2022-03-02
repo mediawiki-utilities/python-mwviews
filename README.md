@@ -30,3 +30,7 @@ When querying for multiple articles and multiple projects the client uses `Threa
 ## Publishing a new release to PyPi
 
 Currently only Dan Andreescu (aka milimetric) is set up as a maintainer on PyPi.  If you'd like to share this awesome responsibility, just let him know or create an issue here.  The publishing guide we follow is: https://packaging.python.org/en/latest/tutorials/packaging-projects/
+
+```
+
+```

@@ -76,7 +76,7 @@ def run(dbname_file, api_agent, output, verbose):
         try:
             api_namespaces =\
             mwapi.Session(wikidb_dict['wikiurl'],user_agent_string).\
-            get(action="query", meta="siteinfo", 
+            get(action="query", meta="siteinfo",
             siprop="namespaces|namespacealiases")
         except mwapi.errors.APIError as e:
             logger.warn("{0}. Skipping {1}".
@@ -89,7 +89,7 @@ def run(dbname_file, api_agent, output, verbose):
 
 
         api_namespace_entries = api_namespaces['query']['namespaces']
-        
+
         for namespace_id in api_namespace_entries:
             current_entry = api_namespace_entries[namespace_id]
             namespace = current_entry['*']
